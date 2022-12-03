@@ -44,6 +44,16 @@ matrice_diferenta_ani = {
 }
 
 dictionar_liste = {
+    'allCrime': list(dictionar_tipuri['allCrime']['2006'])[0:],
+    'homicide': list(dictionar_tipuri['homicide']['2006'])[0:],
+    'harm': list(dictionar_tipuri['harm']['2006'])[0:],
+    'robbery': list(dictionar_tipuri['robbery']['2006'])[0:],
+    'burglary': list(dictionar_tipuri['burglary']['2006'])[0:],
+    'theft': list(dictionar_tipuri['theft']['2006'])[0:],
+    'unlawfulActs': list(dictionar_tipuri['unlawfulActs']['2006'])[0:]
+}
+
+dictionar_sume = {
     'allCrime': list(dictionar_tipuri['allCrime'].sum())[0:],
     'homicide': list(dictionar_tipuri['homicide'].sum())[0:],
     'harm': list(dictionar_tipuri['harm'].sum())[0:],
@@ -69,6 +79,7 @@ date_venit_crima = pd.read_excel("./DataIn/comparatie_earnings_crime.xlsx", 'Tab
 etichete_linii = dictionar_tipuri["allCrime"].index.values.tolist()
 etichete_coloane = dictionar_tipuri["allCrime"].columns.values[0:].tolist()
 coloane_m_diferenta_ani = [i + '-' + j for i, j in zip(lista_ani[1:], lista_ani)]
+lista_tari = etichete_linii
 
 # Calcule folosind ndarray bidimensional
 
@@ -83,7 +94,7 @@ for key in matrice_diferenta_ani.keys():
     matrice_diferenta_ani[key] = temporar
     matrice_out = pd.DataFrame(matrice_diferenta_ani[key], index=etichete_linii).drop(columns=0)
     matrice_out.columns = coloane_m_diferenta_ani
-    matrice_out.to_csv(f"./DataOut/fisiere_csv/diferenta_ani_{key}.csv")
+    matrice_out.to_csv(f"./DataOut/diferenta_ani/diferenta_ani_{key}.csv")
 
 # Sa se calculeze cat % reprezinta fiecare crima din numarul total de crime pentru fiecare tara in anul 2006
 for key in dictionar_procente.keys():
@@ -92,7 +103,49 @@ for key in dictionar_procente.keys():
         lista_temp = dictionar_liste[key]
 
         dictionar_procente[key].append(lista_temp[i]*100/lista_temp_all[i])
-    print(dictionar_procente[key])
+    #print(len(dictionar_procente[key]))
+    #print(dictionar_procente[key])
+
+#print(dictionar_procente['homicide'])
+df_procente = pd.DataFrame({
+    '% Intentional homicide': dictionar_procente['homicide'],
+    '% Harm': dictionar_procente['harm'],
+    '% Robbery': dictionar_procente['robbery'],
+    '% Burglary of a private residence': dictionar_procente['burglary'],
+    '% Theft of a motorized vehicle': dictionar_procente['theft'],
+    '% Unlawful acts involving control': dictionar_procente['unlawfulActs']
+}, index=lista_tari, dtype=float)
+
+#print(df_procente)
+df_procente.to_csv('./DataOut/procente/procente.csv')
+
+# Sa se calculeze suma pe ani pentru toate crimele si sa se salveze intr-un DataFrame.
+# Aceasta suma va fi scazuta din numarul total de crime, iar rezultatul,
+# reprezentand numarul de alte crime decat cele din tabel, va fi salvat intr-un fisier csv
+lista_sume_crime = []
+lista_sume_allCrime = dictionar_sume['allCrime']
+
+for i in range(0, len(lista_sume_allCrime)):
+    suma_crime_an = 0
+    #print("TEST")
+    for key in dictionar_sume.keys():
+        #print(key)
+        if key != 'allCrime':
+            temp = dictionar_sume[key]
+            suma_crime_an += temp[i]
+            #print(dictionar_sume[key])
+            #print(suma_crime_an)
+
+    lista_sume_crime.append(suma_crime_an)
+
+lista_otherCrime = []
+for i in range(0, len(lista_sume_allCrime)):
+    lista_otherCrime.append(lista_sume_allCrime[i]-lista_sume_crime[i])
+
+df_other_crimes = pd.DataFrame({
+    'Alte Crime': lista_otherCrime
+}, index=lista_ani)
+df_other_crimes.to_csv('./DataOut/alte_crime/alte_crime.csv')
 
 # -- Grafice --
 
