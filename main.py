@@ -102,23 +102,15 @@ for key in dictionar_procente.keys():
 fig, ax = plt.subplots(figsize=(10,10))
 heatmap = sns.heatmap(dictionar_dataframes["allCrime"], vmin=0, vmax=1000000,cmap=sns.cubehelix_palette(as_cmap=True),linewidth=.1,ax=ax)
 heatmap.set(xlabel='Intervalul de ani', ylabel='Tarile')
+fig.autofmt_xdate()
 heatmap.set_title('Variatia infractiunilor in toate tarile de-a lungul anilor')
-#plt.show()
+plt.show()
 
-
-# ScatterPlot pentru a calcula corelatia dintre venitul din 2006 si
+# ScatterPlot cu linie de regresie pentru a calcula corelatia dintre venitul din 2006 si
 # rata criminalitatii la 100.000 de locuitori
 
-x_values = date_venit_crima["2006E"].values.tolist()
-y_values = date_venit_crima["CR"].values.tolist()
-
-scatter_plot_date = pd.DataFrame({"x_values": x_values, "y_values": y_values})
-
-plt.plot('x_values', 'y_values', data=scatter_plot_date, linestyle='none', marker='o',)
-#plt.show()
-
-sns.regplot(x=date_venit_crima["2006E"], y=date_venit_crima["CR"], line_kws={"color":"r"})
-#plt.show()
+sns.regplot(x=date_venit_crima["2006E"], y=date_venit_crima["CR"], line_kws={"color": "r"}).set(title='Corelatia dintre venitul din 2006 si rata criminalitatii')
+plt.show()
 
 #Line Chart pentru numarul mediu de furturi in fiecare an din toate tarile
 
@@ -130,12 +122,37 @@ temporar_theft = dictionar_dataframes["theft"]
 temporar_burglary = dictionar_dataframes["burglary"]
 temporar_robbery = dictionar_dataframes["robbery"]
 
-#print(temporar_theft)
-
 for an in lista_ani:
     suma = temporar_theft[an].sum() + temporar_burglary[an].sum() + temporar_robbery[an].sum()
     medie = suma/marime_linii
     lista_valori_medie_furt.append(medie)
+fig, ax = plt.subplots(figsize=(8, 6))
+x = lista_ani
+default_x_ticks = range(len(x))
+plt.xticks(default_x_ticks, x)
+fig.autofmt_xdate()
+plt.title('Numarul mediu de furturi in fiecare an in toate tarile')
+plt.plot(lista_valori_medie_furt,linewidth=4,linestyle = '-.', color = 'C1')
+plt.show()
 
-plt.plot(lista_valori_medie_furt)
-#plt.show()
+#ScatterPlot pentru
+
+x_values = lista_ani
+y1_values = list(dictionar_dataframes['homicide'].iloc[22].values)
+y2_values = list(dictionar_dataframes['homicide'].iloc[1].values)
+y3_values = list(dictionar_dataframes['homicide'].iloc[16].values)
+print(y1_values)
+print(y2_values)
+df = pd.DataFrame({'x_values':x_values,'y1_values':y1_values,'y2_values':y2_values,'y3_values':y3_values})
+fig, ax = plt.subplots(figsize=(8, 6))
+fig.autofmt_xdate()
+plt.title('Numarul de ucideri din Romania vs Bulgaria vs Ungaria')
+plt.plot( 'x_values', 'y1_values', data=df, marker='o', color='purple', linewidth=2,label="Romania")
+plt.plot( 'x_values', 'y2_values', data=df, marker='o', color='orange', linewidth=2,label="Bulgaria")
+plt.plot( 'x_values', 'y3_values', data=df, marker='o', color='green', linewidth=2,label="Ungaria")
+for index in range(len(x_values)):
+  ax.text(x_values[index], y1_values[index], y1_values[index], size=9)
+  ax.text(x_values[index], y2_values[index], y2_values[index], size=9)
+  ax.text(x_values[index], y3_values[index], y3_values[index], size=9)
+plt.legend()
+plt.show()
