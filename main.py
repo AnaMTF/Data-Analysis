@@ -9,18 +9,20 @@ pd.set_option('display.float_format', lambda x: '%.f' % x)
 np.set_printoptions(suppress=True, formatter={'float_kind': '{:f}'.format})
 
 # Variabile utile
+
 lista_ani = ['1993', '1994', '1995', '1996', '1997', '1998', '1999', '2000', '2001', '2002', '2003', '2004', '2005',
              '2006', '2007']
 
 # Dictionare utile
+
 dictionar_tipuri = {
-    "allCrime": pd.read_excel('./DataIn/fisier_excel.xlsx', 'Total', index_col=0),
-    "homicide": pd.read_excel('./DataIn/fisier_excel.xlsx', 'Intentional homicide', index_col=0),
-    "harm": pd.read_excel('./DataIn/fisier_excel.xlsx', 'Harm', index_col=0),
-    "robbery": pd.read_excel('./DataIn/fisier_excel.xlsx', 'Robbery', index_col=0),
-    "burglary": pd.read_excel('./DataIn/fisier_excel.xlsx', 'Burglary of private residential', index_col=0),
-    "theft": pd.read_excel('./DataIn/fisier_excel.xlsx', 'Theft of a motorized land vehic', index_col=0),
-    "unlawfulActs": pd.read_excel('./DataIn/fisier_excel.xlsx', 'Unlawful acts involving control', index_col=0)
+    "allCrime": pd.read_excel('./DataIn/tipuri_infractiuni.xlsx', 'Total', index_col=0),
+    "homicide": pd.read_excel('./DataIn/tipuri_infractiuni.xlsx', 'Intentional homicide', index_col=0),
+    "harm": pd.read_excel('./DataIn/tipuri_infractiuni.xlsx', 'Harm', index_col=0),
+    "robbery": pd.read_excel('./DataIn/tipuri_infractiuni.xlsx', 'Robbery', index_col=0),
+    "burglary": pd.read_excel('./DataIn/tipuri_infractiuni.xlsx', 'Burglary of private residential', index_col=0),
+    "theft": pd.read_excel('./DataIn/tipuri_infractiuni.xlsx', 'Theft of a motorized land vehic', index_col=0),
+    "unlawfulActs": pd.read_excel('./DataIn/tipuri_infractiuni.xlsx', 'Unlawful acts involving control', index_col=0)
 }
 
 dictionar_dataframes = {
@@ -73,9 +75,11 @@ dictionar_procente = {
 }
 
 # DataFrame ce contine date pentru scatter plot
+
 date_venit_crima = pd.read_excel("./DataIn/comparatie_earnings_crime.xlsx", 'Tabel', index_col=0)
 
 # Etichete pentru DataFrames
+
 etichete_linii = dictionar_tipuri["allCrime"].index.values.tolist()
 etichete_coloane = dictionar_tipuri["allCrime"].columns.values[0:].tolist()
 coloane_m_diferenta_ani = [i + '-' + j for i, j in zip(lista_ani[1:], lista_ani)]
@@ -84,6 +88,7 @@ lista_tari = etichete_linii
 # Calcule folosind ndarray bidimensional
 
 # Sa se calculeze diferenta intre ani si sa se adauge intr-o matrice. Matricea va fi salvata intr-un fisier csv
+
 for key in matrice_diferenta_ani.keys():
     marime = matrice_diferenta_ani[key].shape[1]
     temporar = matrice_diferenta_ani[key]
@@ -97,16 +102,15 @@ for key in matrice_diferenta_ani.keys():
     matrice_out.to_csv(f"./DataOut/diferenta_ani/diferenta_ani_{key}.csv")
 
 # Sa se calculeze cat % reprezinta fiecare crima din numarul total de crime pentru fiecare tara in anul 2006
+
 for key in dictionar_procente.keys():
     lista_temp_all = dictionar_liste['allCrime']
     for i in range(len(dictionar_liste[key])):
         lista_temp = dictionar_liste[key]
 
         dictionar_procente[key].append(lista_temp[i]*100/lista_temp_all[i])
-    #print(len(dictionar_procente[key]))
-    #print(dictionar_procente[key])
 
-#print(dictionar_procente['homicide'])
+
 df_procente = pd.DataFrame({
     '% Intentional homicide': dictionar_procente['homicide'],
     '% Harm': dictionar_procente['harm'],
@@ -116,25 +120,21 @@ df_procente = pd.DataFrame({
     '% Unlawful acts involving control': dictionar_procente['unlawfulActs']
 }, index=lista_tari, dtype=float)
 
-#print(df_procente)
 df_procente.to_csv('./DataOut/procente/procente.csv')
 
 # Sa se calculeze suma pe ani pentru toate crimele si sa se salveze intr-un DataFrame.
 # Aceasta suma va fi scazuta din numarul total de crime, iar rezultatul,
 # reprezentand numarul de alte crime decat cele din tabel, va fi salvat intr-un fisier csv
+
 lista_sume_crime = []
 lista_sume_allCrime = dictionar_sume['allCrime']
 
 for i in range(0, len(lista_sume_allCrime)):
     suma_crime_an = 0
-    #print("TEST")
     for key in dictionar_sume.keys():
-        #print(key)
         if key != 'allCrime':
             temp = dictionar_sume[key]
             suma_crime_an += temp[i]
-            #print(dictionar_sume[key])
-            #print(suma_crime_an)
 
     lista_sume_crime.append(suma_crime_an)
 
@@ -162,7 +162,9 @@ plt.show()
 # ScatterPlot cu linie de regresie pentru a calcula corelatia dintre venitul din 2006 si
 # rata criminalitatii la 100.000 de locuitori
 
-sns.regplot(x=date_venit_crima["2006E"], y=date_venit_crima["CR"], line_kws={"color": "r"}).set(title='Corelatia dintre venitul din 2006 si rata criminalitatii')
+fig, ax = plt.subplots(figsize=(10,10))
+regplot = sns.regplot(x=date_venit_crima["2006E"], y=date_venit_crima["CR"], line_kws={"color": "r"}).set(title='Corelatia dintre venitul din 2006 si rata criminalitatii')
+fig.autofmt_xdate()
 plt.show()
 
 #Line Chart pentru numarul mediu de furturi in fiecare an din toate tarile
@@ -179,7 +181,7 @@ for an in lista_ani:
     suma = temporar_theft[an].sum() + temporar_burglary[an].sum() + temporar_robbery[an].sum()
     medie = suma/marime_linii
     lista_valori_medie_furt.append(medie)
-fig, ax = plt.subplots(figsize=(8, 6))
+fig, ax = plt.subplots(figsize=(10, 10))
 x = lista_ani
 default_x_ticks = range(len(x))
 plt.xticks(default_x_ticks, x)
@@ -188,24 +190,26 @@ plt.title('Numarul mediu de furturi in fiecare an in toate tarile')
 plt.plot(lista_valori_medie_furt,linewidth=4,linestyle = '-.', color = 'C1')
 plt.show()
 
-#ScatterPlot pentru
+#Line Chart pentru compararea omuciderilor din Romania cu alte tari
 
 x_values = lista_ani
 y1_values = list(dictionar_dataframes['homicide'].iloc[22].values)
 y2_values = list(dictionar_dataframes['homicide'].iloc[1].values)
 y3_values = list(dictionar_dataframes['homicide'].iloc[16].values)
-print(y1_values)
-print(y2_values)
-df = pd.DataFrame({'x_values':x_values,'y1_values':y1_values,'y2_values':y2_values,'y3_values':y3_values})
-fig, ax = plt.subplots(figsize=(8, 6))
+y4_values = list(dictionar_dataframes['homicide'].iloc[36].values)
+
+df = pd.DataFrame({'x_values':x_values,'y1_values':y1_values,'y2_values':y2_values,'y3_values':y3_values, 'y4_values':y4_values})
+fig, ax = plt.subplots(figsize=(10, 10))
 fig.autofmt_xdate()
-plt.title('Numarul de ucideri din Romania vs Bulgaria vs Ungaria')
+plt.title('Numarul de ucideri din Romania vs Bulgaria vs Ungaria vs Serbia')
 plt.plot( 'x_values', 'y1_values', data=df, marker='o', color='purple', linewidth=2,label="Romania")
 plt.plot( 'x_values', 'y2_values', data=df, marker='o', color='orange', linewidth=2,label="Bulgaria")
 plt.plot( 'x_values', 'y3_values', data=df, marker='o', color='green', linewidth=2,label="Ungaria")
+plt.plot( 'x_values', 'y4_values', data=df, marker='o', color='red', linewidth=2,label="Serbia")
 for index in range(len(x_values)):
   ax.text(x_values[index], y1_values[index], y1_values[index], size=9)
   ax.text(x_values[index], y2_values[index], y2_values[index], size=9)
   ax.text(x_values[index], y3_values[index], y3_values[index], size=9)
+  ax.text(x_values[index], y4_values[index], y4_values[index], size=9)
 plt.legend()
 plt.show()
